@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --beige-bg: #F5F0E8;
+  --beige-light: #FDFBF7;
+  --metallic-green: #2D6A4F;
+  --metallic-green-light: #40916C;
+  --metallic-green-dark: #1B5E3A;
+  --charcoal: #1B1B1B;
+}
+
+body {
+  background: var(--beige-bg);
+  color: var(--charcoal);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+@layer components {
+  .card-metallic {
+    @apply bg-white rounded-xl border border-metallic-green-100 shadow-metallic;
+    background: linear-gradient(145deg, #ffffff 0%, #f8faf9 100%);
+  }
+
+  .btn-metallic {
+    @apply px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200;
+    background: linear-gradient(135deg, #2D6A4F 0%, #40916C 50%, #2D6A4F 100%);
+    background-size: 200% 200%;
+    box-shadow: 0 4px 6px -1px rgba(45, 106, 79, 0.3);
+  }
+
+  .btn-metallic:hover {
+    animation: shine 1.5s ease-in-out;
+    box-shadow: 0 6px 12px -2px rgba(45, 106, 79, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-metallic:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px -1px rgba(45, 106, 79, 0.3);
+  }
+
+  .btn-metallic-danger {
+    @apply px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200;
+    background: linear-gradient(135deg, #DC2626 0%, #EF4444 50%, #DC2626 100%);
+    background-size: 200% 200%;
+    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3);
+  }
+
+  .btn-metallic-danger:hover {
+    box-shadow: 0 6px 12px -2px rgba(220, 38, 38, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .status-badge {
+    @apply px-3 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .status-running {
+    @apply bg-metallic-green-100 text-metallic-green-700;
+    animation: pulse-green 2s ease-in-out infinite;
+  }
+
+  .status-stopped {
+    @apply bg-red-100 text-red-700;
+  }
+
+  .status-idle {
+    @apply bg-beige-300 text-beige-500;
+  }
+
+  .input-metallic {
+    @apply w-full px-4 py-3 rounded-lg border border-metallic-green-200 bg-white
+           focus:outline-none focus:ring-2 focus:ring-metallic-green-400 focus:border-transparent
+           transition-all duration-200;
+  }
+
+  .stat-value {
+    @apply text-2xl font-bold text-metallic-green-700;
+  }
+
+  .stat-label {
+    @apply text-sm text-gray-500 mt-1;
+  }
+
+  .phase-indicator {
+    @apply flex items-center gap-2 px-3 py-2 rounded-lg;
+  }
+
+  .phase-active {
+    @apply bg-metallic-green-100 text-metallic-green-700 font-semibold;
+  }
+
+  .phase-inactive {
+    @apply bg-gray-100 text-gray-400;
+  }
+
+  .phase-complete {
+    @apply bg-metallic-green-50 text-metallic-green-500;
+  }
+
+  .metallic-border {
+    border-image: linear-gradient(135deg, #2D6A4F, #40916C, #2D6A4F) 1;
+  }
+}
+
+@keyframes shine {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(45, 106, 79, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(45, 106, 79, 0); }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--beige-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--metallic-green);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--metallic-green-dark);
+}
