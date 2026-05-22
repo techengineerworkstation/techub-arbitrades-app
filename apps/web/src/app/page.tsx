@@ -23,7 +23,7 @@ export default function Home() {
       } else if (res.error) {
         setError(res.error);
       }
-    } catch (e) {
+    } catch {
       setError('Failed to connect to engine');
     } finally {
       setLoading(false);
@@ -50,23 +50,23 @@ export default function Home() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-metallic-green-200 border-t-metallic-green-500 rounded-full animate-spin mx-auto" />
-          <p className="mt-4 text-metallic-green-600 font-semibold">Loading Techub Arbitrades...</p>
+          <div className="w-12 h-12 md:w-16 md:h-16 border-4 border-metallic-green-200 border-t-metallic-green-500 rounded-full animate-spin mx-auto" />
+          <p className="mt-4 text-metallic-green-600 font-semibold text-sm md:text-base">Loading Arbitrades...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen p-3 md:p-6 lg:p-8">
       {/* Header */}
-      <header className="mb-8">
-        <div className="flex items-center justify-between">
+      <header className="mb-4 md:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h1 className="text-3xl font-bold text-metallic-green-800">
+            <h1 className="text-2xl md:text-3xl font-bold text-metallic-green-800">
               Techub Arbitrades
             </h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-xs md:text-sm text-gray-500 mt-1">
               TRN/USDT Arbitrage &middot; Poloniex &harr; MEXC
             </p>
           </div>
@@ -80,16 +80,16 @@ export default function Home() {
           </div>
         </div>
         {error && (
-          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-xs md:text-sm">
             {error}
           </div>
         )}
       </header>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Left Column */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 md:space-y-6">
           <Dashboard status={status} onStart={handleStart} onStop={handleStop} />
           <PriceMonitor prices={status?.prices ?? null} />
           <CycleTimeline
@@ -99,7 +99,7 @@ export default function Home() {
         </div>
 
         {/* Right Column */}
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           <TradingConfig
             isRunning={status?.is_running || false}
             onConfigUpdate={fetchStatus}
@@ -113,8 +113,8 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="mt-8 text-center text-xs text-gray-400">
-        Techub Arbitrades App &middot; TRN Contract: 0x1114982539A2Bfb84e8b9e4e320bbC04532a9e44
+      <footer className="mt-6 md:mt-8 text-center text-xs text-gray-400 pb-4">
+        Techub Arbitrades &middot; TRN Contract: 0x1114982539A2Bfb84e8b9e4e320bbC04532a9e44
       </footer>
     </div>
   );

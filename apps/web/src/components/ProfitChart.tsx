@@ -12,13 +12,13 @@ export default function ProfitChart({ history, totalProfit }: ProfitChartProps) 
   const recentCycles = history.slice(-10);
 
   return (
-    <div className="card-metallic p-6">
-      <h2 className="text-xl font-bold text-metallic-green-800 mb-4">Profit History</h2>
+    <div className="card-metallic p-4 md:p-6">
+      <h2 className="text-lg md:text-xl font-bold text-metallic-green-800 mb-4">Profit History</h2>
 
       {/* Total Profit */}
-      <div className="text-center mb-6 p-4 bg-metallic-green-50 rounded-lg">
+      <div className="text-center mb-4 md:mb-6 p-3 md:p-4 bg-metallic-green-50 rounded-lg">
         <div className="text-xs text-gray-500 mb-1">Total Net Profit</div>
-        <div className={`text-3xl font-bold ${
+        <div className={`text-2xl md:text-3xl font-bold ${
           totalProfit >= 0 ? 'text-metallic-green-600' : 'text-red-500'
         }`}>
           ${totalProfit.toFixed(4)}
@@ -27,18 +27,18 @@ export default function ProfitChart({ history, totalProfit }: ProfitChartProps) 
 
       {/* Bar Chart */}
       {recentCycles.length > 0 ? (
-        <div className="space-y-2">
-          {recentCycles.map((cycle, index) => {
+        <div className="space-y-1.5 md:space-y-2">
+          {recentCycles.map((cycle) => {
             const profit = cycle.net_profit || 0;
             const width = Math.max(5, Math.abs(profit / maxProfit) * 100);
             const isPositive = profit >= 0;
 
             return (
               <div key={cycle.id} className="flex items-center gap-2">
-                <div className="w-8 text-xs text-gray-500 text-right">
+                <div className="w-7 md:w-8 text-xs text-gray-500 text-right">
                   #{cycle.cycle_number}
                 </div>
-                <div className="flex-1 h-6 bg-beige-100 rounded overflow-hidden">
+                <div className="flex-1 h-5 md:h-6 bg-beige-100 rounded overflow-hidden">
                   <div
                     className={`h-full rounded transition-all duration-500 ${
                       isPositive ? 'bg-metallic-green-400' : 'bg-red-400'
@@ -46,7 +46,7 @@ export default function ProfitChart({ history, totalProfit }: ProfitChartProps) 
                     style={{ width: `${width}%` }}
                   />
                 </div>
-                <div className={`w-20 text-xs text-right font-medium ${
+                <div className={`w-16 md:w-20 text-xs text-right font-medium ${
                   isPositive ? 'text-metallic-green-600' : 'text-red-500'
                 }`}>
                   ${profit.toFixed(4)}
@@ -56,7 +56,7 @@ export default function ProfitChart({ history, totalProfit }: ProfitChartProps) 
           })}
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-400">
+        <div className="text-center py-6 md:py-8 text-gray-400">
           <div className="text-sm">No cycles completed yet</div>
           <div className="text-xs mt-1">Start trading to see profit history</div>
         </div>
@@ -64,7 +64,7 @@ export default function ProfitChart({ history, totalProfit }: ProfitChartProps) 
 
       {/* Fee Breakdown */}
       {history.length > 0 && history[history.length - 1].fees && (
-        <div className="mt-4 pt-4 border-t border-beige-200">
+        <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-beige-200">
           <h3 className="text-sm font-semibold text-gray-600 mb-2">Last Cycle Fees</h3>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between">

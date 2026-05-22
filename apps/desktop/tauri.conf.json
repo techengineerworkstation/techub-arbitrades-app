@@ -1,0 +1,62 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicegui/nicegui/main/tauri-conf.json",
+  "productName": "Arbitrades",
+  "version": "1.0.0",
+  "identifier": "com.techub.arbitrades",
+  "build": {
+    "frontendDist": "../web/out",
+    "devUrl": "https://arbitrades.sbs",
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "cd ../web && npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Techub Arbitrades",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' https://api.arbitrades.sbs https://arbitrades.sbs; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'"
+    },
+    "trayIcon": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [],
+    "category": "Finance",
+    "shortDescription": "Crypto arbitrage bot",
+    "longDescription": "Techub Arbitrades - Cross-platform crypto arbitrage trading bot desktop application wrapping the Next.js web interface.",
+    "linux": {
+      "deb": {
+        "depends": []
+      }
+    },
+    "macOS": {
+      "entitlements": null,
+      "minimumSystemVersion": "10.15"
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    }
+  }
+}

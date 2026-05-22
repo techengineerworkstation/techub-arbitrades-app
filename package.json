@@ -3,11 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
     "dev:web": "cd apps/web && npm run dev",
+    "dev:mobile": "cd apps/mobile && npm run start",
+    "dev:desktop": "cd apps/desktop && cargo tauri dev",
     "build:web": "cd apps/web && npm run build",
+    "build:mobile": "cd apps/mobile && npm run build",
+    "build:desktop": "cd apps/desktop && cargo tauri build",
     "build:engine": "cd engine && cargo build --release",
     "start:engine": "cd engine && cargo run --release"
   }

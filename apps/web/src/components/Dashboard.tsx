@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { EngineStatus } from '@/lib/api';
+import { AMOUNT_PRESETS } from '@arbitrades/shared';
 
 interface DashboardProps {
   status: EngineStatus | null;
@@ -26,48 +27,46 @@ export default function Dashboard({ status, onStart, onStop }: DashboardProps) {
   };
 
   return (
-    <div className="card-metallic p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-metallic-green-800">Trading Control</h2>
-        <div className="flex items-center gap-2">
-          {status?.is_running && (
-            <div className="w-3 h-3 bg-metallic-green-500 rounded-full animate-pulse-green" />
-          )}
-        </div>
+    <div className="card-metallic p-4 md:p-6">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <h2 className="text-lg md:text-xl font-bold text-metallic-green-800">Trading Control</h2>
+        {status?.is_running && (
+          <div className="w-3 h-3 bg-metallic-green-500 rounded-full animate-pulse-green" />
+        )}
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="text-center p-3 bg-beige-100 rounded-lg">
-          <div className="stat-value">{status?.cycles_completed || 0}</div>
-          <div className="stat-label">Cycles</div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
+        <div className="text-center p-2 md:p-3 bg-beige-100 rounded-lg">
+          <div className="stat-value text-xl md:text-2xl">{status?.cycles_completed || 0}</div>
+          <div className="stat-label text-xs">Cycles</div>
         </div>
-        <div className="text-center p-3 bg-beige-100 rounded-lg">
-          <div className="stat-value text-metallic-green-600">
+        <div className="text-center p-2 md:p-3 bg-beige-100 rounded-lg">
+          <div className="stat-value text-xl md:text-2xl text-metallic-green-600">
             ${(status?.total_profit || 0).toFixed(4)}
           </div>
-          <div className="stat-label">Total Profit</div>
+          <div className="stat-label text-xs">Total Profit</div>
         </div>
-        <div className="text-center p-3 bg-beige-100 rounded-lg">
-          <div className="stat-value text-sm">
+        <div className="text-center p-2 md:p-3 bg-beige-100 rounded-lg">
+          <div className="stat-value text-sm md:text-base">
             {status?.is_running ? formatUptime(status.uptime_seconds) : '--'}
           </div>
-          <div className="stat-label">Uptime</div>
+          <div className="stat-label text-xs">Uptime</div>
         </div>
-        <div className="text-center p-3 bg-beige-100 rounded-lg">
-          <div className="stat-value text-sm">
+        <div className="text-center p-2 md:p-3 bg-beige-100 rounded-lg">
+          <div className="stat-value text-sm md:text-base">
             {status?.is_running ? formatTime(status.remaining_seconds) : '24h 0m'}
           </div>
-          <div className="stat-label">Remaining</div>
+          <div className="stat-label text-xs">Remaining</div>
         </div>
       </div>
 
       {/* Trading Amount Input */}
-      <div className="mb-6">
+      <div className="mb-4 md:mb-6">
         <label className="block text-sm font-medium text-gray-600 mb-2">
           Trading Amount (USDT)
         </label>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="number"
             value={amount}
@@ -79,12 +78,12 @@ export default function Dashboard({ status, onStart, onStop }: DashboardProps) {
             step="0.01"
           />
           <div className="flex gap-2">
-            {[10, 15, 25, 50].map((val) => (
+            {AMOUNT_PRESETS.map((val) => (
               <button
                 key={val}
                 onClick={() => setAmount(val.toString())}
                 disabled={status?.is_running}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-none
                   ${amount === val.toString()
                     ? 'bg-metallic-green-500 text-white'
                     : 'bg-beige-200 text-gray-600 hover:bg-beige-300'
@@ -102,14 +101,14 @@ export default function Dashboard({ status, onStart, onStop }: DashboardProps) {
         {!status?.is_running ? (
           <button
             onClick={() => onStart(parseFloat(amount) || 15)}
-            className="btn-metallic flex-1 text-lg"
+            className="btn-metallic flex-1 text-base md:text-lg"
           >
             Start Arbitrage
           </button>
         ) : (
           <button
             onClick={onStop}
-            className="btn-metallic-danger flex-1 text-lg"
+            className="btn-metallic-danger flex-1 text-base md:text-lg"
           >
             Stop Engine
           </button>
@@ -118,11 +117,11 @@ export default function Dashboard({ status, onStart, onStop }: DashboardProps) {
 
       {/* Current Cycle Info */}
       {status?.current_cycle && (
-        <div className="mt-6 p-4 bg-metallic-green-50 rounded-lg border border-metallic-green-100">
+        <div className="mt-4 md:mt-6 p-3 md:p-4 bg-metallic-green-50 rounded-lg border border-metallic-green-100">
           <h3 className="text-sm font-semibold text-metallic-green-700 mb-2">
             Current Cycle #{status.current_cycle.cycle_number}
           </h3>
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-2 gap-2 md:gap-3 text-xs md:text-sm">
             <div>
               <span className="text-gray-500">Amount:</span>{' '}
               <span className="font-medium">${status.current_cycle.start_amount_usdt}</span>

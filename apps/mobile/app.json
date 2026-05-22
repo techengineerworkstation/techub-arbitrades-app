@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Arbitrades",
+    "slug": "arbitrades",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "arbitrades",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#2D6A4F"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.techub.arbitrades"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2D6A4F"
+      },
+      "package": "com.techub.arbitrades"
+    }
+  }
+}

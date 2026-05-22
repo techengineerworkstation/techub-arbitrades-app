@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { updateConfig } from '@/lib/api';
+import { DEFAULT_CONFIG } from '@arbitrades/shared';
 
 interface TradingConfigProps {
   isRunning: boolean;
@@ -9,8 +10,8 @@ interface TradingConfigProps {
 }
 
 export default function TradingConfig({ isRunning, onConfigUpdate }: TradingConfigProps) {
-  const [spreadThreshold, setSpreadThreshold] = useState('0.5');
-  const [cycleDuration, setCycleDuration] = useState('24');
+  const [spreadThreshold, setSpreadThreshold] = useState(DEFAULT_CONFIG.spread_threshold?.toString() || '0.5');
+  const [cycleDuration, setCycleDuration] = useState(DEFAULT_CONFIG.cycle_duration_hours?.toString() || '24');
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -26,10 +27,10 @@ export default function TradingConfig({ isRunning, onConfigUpdate }: TradingConf
   };
 
   return (
-    <div className="card-metallic p-6">
-      <h2 className="text-xl font-bold text-metallic-green-800 mb-4">Configuration</h2>
+    <div className="card-metallic p-4 md:p-6">
+      <h2 className="text-lg md:text-xl font-bold text-metallic-green-800 mb-4">Configuration</h2>
 
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
         {/* Spread Threshold */}
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-1">
@@ -82,16 +83,16 @@ export default function TradingConfig({ isRunning, onConfigUpdate }: TradingConf
       </div>
 
       {/* Network Info */}
-      <div className="mt-6 pt-4 border-t border-beige-200">
+      <div className="mt-4 md:mt-6 pt-4 border-t border-beige-200">
         <h3 className="text-sm font-semibold text-gray-600 mb-3">Network Routes</h3>
         <div className="space-y-2 text-xs">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-metallic-green-500 rounded-full" />
+            <div className="w-2 h-2 bg-metallic-green-500 rounded-full flex-shrink-0" />
             <span className="text-gray-500">TRN Transfer:</span>
             <span className="font-medium">Arbitrum One</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-metallic-green-500 rounded-full" />
+            <div className="w-2 h-2 bg-metallic-green-500 rounded-full flex-shrink-0" />
             <span className="text-gray-500">USDT Return:</span>
             <span className="font-medium">BSC BEP20</span>
           </div>

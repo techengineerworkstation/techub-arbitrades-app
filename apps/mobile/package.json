@@ -1,0 +1,28 @@
+{
+  "name": "@arbitrades/mobile",
+  "version": "1.0.0",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@arbitrades/shared": "workspace:*",
+    "@expo/vector-icons": "^14.0.0",
+    "expo": "~52.0.0",
+    "expo-linear-gradient": "~14.0.0",
+    "expo-status-bar": "~2.0.0",
+    "react": "18.3.1",
+    "react-native": "0.76.3",
+    "react-native-safe-area-context": "~4.12.0",
+    "react-native-svg": "~15.8.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.0",
+    "@types/react": "~18.3.0",
+    "typescript": "~5.3.3"
+  }
+}
