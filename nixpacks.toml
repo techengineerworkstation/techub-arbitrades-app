@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["...", "rustc", "cargo", "pkg-config", "openssl"]
+
+[phases.build]
+cmds = ["cd engine && cargo build --release"]
+
+[start]
+cmd = "engine/target/release/techub-arbitrades-engine"
