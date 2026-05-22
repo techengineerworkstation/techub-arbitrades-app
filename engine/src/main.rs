@@ -24,7 +24,8 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let config = AppConfig::from_env()?;
-    let port = config.engine_port;
+    // Railway sets PORT env var; prefer it over ENGINE_PORT
+    let port = std::env::var("PORT").unwrap_or_else(|_| config.engine_port.to_string());
 
     let state = AppState {
         config: Arc::new(RwLock::new(config.clone())),
