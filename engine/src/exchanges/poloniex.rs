@@ -1,4 +1,4 @@
-use super::{Balance, ExchangeClient, FeeInfo, OrderResult, TickerPrice, WithdrawResult};
+use super::{Balance, DepositRecord, ExchangeClient, FeeInfo, OrderResult, TickerPrice, WithdrawResult};
 use crate::config::AppConfig;
 use async_trait::async_trait;
 use hmac::{Hmac, Mac};
@@ -205,5 +205,38 @@ impl ExchangeClient for PoloniexClient {
             network: network.to_string(),
             withdrawal_fee: fee,
         })
+    }
+
+    async fn get_deposit_history(&self, _currency: &str) -> anyhow::Result<Vec<DepositRecord>> {
+        let path = "/wallets/activity/deposit";
+        let query = "limit=20";
+        let headers = self.auth_headers("GET", path, query, "");
+
+        let mut req = self.client.get(format!("{}{path}?{query}", self.base_url));
+        for (k, v) in &headers {
+            req = req.header(k.as_str(), v.as_str());
+        }
+
+        let resp: serde_json::Value = req.send().await?.json().await?;
+
+        let mut deposits = Vec::new();
+        if let Some(arr) = resp.as_array() {
+            for item in arr {
+                let status = match item["status"].as_str().unwrap_or("") {
+                    "COMPLETED" => "success",
+                    "PROCESSING" | "WAITING" => "pending",
+                    _ => "unknown",
+                };
+                deposits.push(DepositRecord {
+                    id: item["id"].as_str().unwrap_or("").to_string(),
+                    currency: item["currency"].as_str().unwrap_or("").to_string(),
+                    amount: item["amount"].as_str().unwrap_or("0").parse().unwrap_or(0.0),
+                    status: status.to_string(),
+                    network: item["chain"].as_str().unwrap_or("").to_string(),
+                    timestamp: item["createdAt"].as_i64().unwrap_or(0),
+                });
+            }
+        }
+        Ok(deposits)
     }
 }

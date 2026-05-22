@@ -39,6 +39,16 @@ pub struct FeeInfo {
     pub withdrawal_fee: f64,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DepositRecord {
+    pub id: String,
+    pub currency: String,
+    pub amount: f64,
+    pub status: String, // "pending", "success", "failed"
+    pub network: String,
+    pub timestamp: i64,
+}
+
 #[async_trait]
 pub trait ExchangeClient: Send + Sync {
     async fn get_ticker_price(&self, symbol: &str) -> anyhow::Result<TickerPrice>;
@@ -47,4 +57,5 @@ pub trait ExchangeClient: Send + Sync {
     async fn place_market_sell(&self, symbol: &str, qty: f64) -> anyhow::Result<OrderResult>;
     async fn withdraw(&self, currency: &str, amount: f64, address: &str, network: &str) -> anyhow::Result<WithdrawResult>;
     async fn get_withdrawal_fee(&self, currency: &str, network: &str) -> anyhow::Result<FeeInfo>;
+    async fn get_deposit_history(&self, currency: &str) -> anyhow::Result<Vec<DepositRecord>>;
 }

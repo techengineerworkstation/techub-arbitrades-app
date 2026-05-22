@@ -1,4 +1,4 @@
-use super::{Balance, ExchangeClient, FeeInfo, OrderResult, TickerPrice, WithdrawResult};
+use super::{Balance, DepositRecord, ExchangeClient, FeeInfo, OrderResult, TickerPrice, WithdrawResult};
 use crate::config::AppConfig;
 use async_trait::async_trait;
 use hmac::{Hmac, Mac};
@@ -196,5 +196,41 @@ impl ExchangeClient for MexcClient {
             network: network.to_string(),
             withdrawal_fee: fee,
         })
+    }
+
+    async fn get_deposit_history(&self, currency: &str) -> anyhow::Result<Vec<DepositRecord>> {
+        let ts = self.timestamp();
+        let query = format!("coin={currency}&timestamp={ts}");
+        let signature = self.sign(&query);
+
+        let url = format!("{}/api/v3/capital/deposit/hisrec?{}&signature={}", self.base_url, query, signature);
+        let resp: serde_json::Value = self
+            .client
+            .get(&url)
+            .header("X-MEXC-APIKEY", &self.api_key)
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        let mut deposits = Vec::new();
+        if let Some(arr) = resp.as_array() {
+            for item in arr {
+                let status = match item["status"].as_i64().unwrap_or(0) {
+                    1 => "pending".to_string(),
+                    2 => "success".to_string(),
+                    _ => "unknown".to_string(),
+                };
+                deposits.push(DepositRecord {
+                    id: item["id"].as_str().unwrap_or("").to_string(),
+                    currency: item["coin"].as_str().unwrap_or("").to_string(),
+                    amount: item["amount"].as_str().unwrap_or("0").parse().unwrap_or(0.0),
+                    status,
+                    network: item["network"].as_str().unwrap_or("").to_string(),
+                    timestamp: item["insertTime"].as_i64().unwrap_or(0),
+                });
+            }
+        }
+        Ok(deposits)
     }
 }

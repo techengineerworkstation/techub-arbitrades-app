@@ -52,7 +52,7 @@ async fn health() -> Json<ApiResponse<&'static str>> {
 
 async fn get_status(State(state): State<AppState>) -> Json<ApiResponse<serde_json::Value>> {
     let engine = state.engine.read().await;
-    let status = engine.get_status();
+    let status = engine.get_status().await;
     Json(ApiResponse {
         success: true,
         data: Some(serde_json::to_value(status).unwrap()),
@@ -104,6 +104,14 @@ async fn update_config(
     if let Some(hours) = req.cycle_duration_hours {
         config.cycle_duration_hours = hours;
     }
+
+    // Sync config to running engine
+    let mut engine = state.engine.write().await;
+    engine.config.spread_threshold_percent = config.spread_threshold_percent;
+    engine.config.transfer_amount_usdt = config.transfer_amount_usdt;
+    engine.config.cycle_duration_hours = config.cycle_duration_hours;
+    drop(config);
+
     Json(ApiResponse {
         success: true,
         data: Some("Config updated"),
@@ -113,7 +121,7 @@ async fn update_config(
 
 async fn get_history(State(state): State<AppState>) -> Json<ApiResponse<serde_json::Value>> {
     let engine = state.engine.read().await;
-    let status = engine.get_status();
+    let status = engine.get_status().await;
     Json(ApiResponse {
         success: true,
         data: Some(serde_json::json!({
@@ -127,7 +135,7 @@ async fn get_history(State(state): State<AppState>) -> Json<ApiResponse<serde_js
 
 async fn get_prices(State(state): State<AppState>) -> Json<ApiResponse<serde_json::Value>> {
     let engine = state.engine.read().await;
-    let status = engine.get_status();
+    let status = engine.get_status().await;
     Json(ApiResponse {
         success: true,
         data: status.prices.map(|p| serde_json::to_value(p).unwrap()),
@@ -137,7 +145,7 @@ async fn get_prices(State(state): State<AppState>) -> Json<ApiResponse<serde_jso
 
 async fn get_fees(State(state): State<AppState>) -> Json<ApiResponse<serde_json::Value>> {
     let engine = state.engine.read().await;
-    let status = engine.get_status();
+    let status = engine.get_status().await;
     Json(ApiResponse {
         success: true,
         data: status.fees.map(|f| serde_json::to_value(f).unwrap()),

@@ -31,6 +31,19 @@ async fn main() -> anyhow::Result<()> {
         engine: Arc::new(RwLock::new(arb::ArbitrageEngine::new(config))),
     };
 
+    // Spawn background tick loop to drive the engine state machine
+    let engine_handle = state.engine.clone();
+    tokio::spawn(async move {
+        let tick_interval = std::time::Duration::from_secs(2);
+        loop {
+            tokio::time::sleep(tick_interval).await;
+            let mut engine = engine_handle.write().await;
+            if let Err(e) = engine.tick().await {
+                tracing::error!("Engine tick error: {e}");
+            }
+        }
+    });
+
     let app = create_router(state);
 
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await?;

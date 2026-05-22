@@ -23,6 +23,9 @@ pub struct ArbitrageEngine {
     // Cycle state tracking
     pub trn_quantity: Option<f64>,
     pub buy_price: Option<f64>,
+    // Deposit polling state
+    pub withdrawal_initiated_at: Option<i64>,
+    pub deposit_poll_attempts: u32,
     // Paper trading state
     pub paper_balances: PaperBalances,
 }
@@ -86,6 +89,8 @@ impl ArbitrageEngine {
             mexc_client,
             trn_quantity: None,
             buy_price: None,
+            withdrawal_initiated_at: None,
+            deposit_poll_attempts: 0,
             paper_balances,
         }
     }
@@ -98,6 +103,8 @@ impl ArbitrageEngine {
         self.is_running = true;
         self.start_time = Some(Utc::now().timestamp());
         self.phase = CyclePhase::Monitoring;
+        self.withdrawal_initiated_at = None;
+        self.deposit_poll_attempts = 0;
 
         if self.config.paper_trading {
             self.paper_balances = PaperBalances::new(amount);
@@ -277,6 +284,8 @@ impl ArbitrageEngine {
                 &self.config.mexc_trn_deposit_address,
                 &self.config.poloniex_trn_network,
             ).await?;
+            self.withdrawal_initiated_at = Some(Utc::now().timestamp());
+            self.deposit_poll_attempts = 0;
             tracing::info!("TRN withdrawal initiated: id={}", result.withdraw_id);
         }
 
@@ -296,13 +305,32 @@ impl ArbitrageEngine {
             }
             tracing::info!("Paper: TRN deposit confirmed on MEXC");
         } else {
-            // Live mode: check MEXC deposit history
-            // For now, auto-advance (in production, poll deposit status)
-            self.phase = CyclePhase::TRNDeposited;
-            if let Some(cycle) = &mut self.current_cycle {
-                cycle.phase = CyclePhase::TRNDeposited;
+            // Live mode: poll MEXC deposit history for TRN
+            self.deposit_poll_attempts += 1;
+            let client = self.mexc_client.as_ref().unwrap();
+            let deposits = client.get_deposit_history("TRN").await?;
+
+            let initiated_at = self.withdrawal_initiated_at.unwrap_or(0);
+            let deposit_confirmed = deposits.iter().any(|d| {
+                d.currency == "TRN"
+                    && d.status == "success"
+                    && d.timestamp >= initiated_at
+            });
+
+            if deposit_confirmed {
+                self.phase = CyclePhase::TRNDeposited;
+                if let Some(cycle) = &mut self.current_cycle {
+                    cycle.phase = CyclePhase::TRNDeposited;
+                }
+                tracing::info!("TRN deposit confirmed on MEXC after {} poll attempts", self.deposit_poll_attempts);
+            } else {
+                tracing::info!("Waiting for TRN deposit on MEXC (attempt {})", self.deposit_poll_attempts);
+                // Auto-stop after 100 attempts (~200 seconds) to avoid infinite loop
+                if self.deposit_poll_attempts >= 100 {
+                    tracing::warn!("Deposit not confirmed after {} attempts, stopping cycle", self.deposit_poll_attempts);
+                    self.stop();
+                }
             }
-            tracing::info!("TRN deposit confirmed on MEXC");
         }
         Ok(())
     }
@@ -409,7 +437,7 @@ impl ArbitrageEngine {
         Ok(())
     }
 
-    pub fn get_status(&self) -> EngineStatus {
+    pub async fn get_status(&self) -> EngineStatus {
         let uptime = self.start_time
             .map(|t| (Utc::now().timestamp() - t) as u64)
             .unwrap_or(0);
@@ -420,6 +448,13 @@ impl ArbitrageEngine {
             if elapsed >= duration { 0 } else { duration - elapsed }
         } else {
             self.config.cycle_duration_hours * 3600
+        };
+
+        let balances = if self.config.paper_trading {
+            Some(self.paper_balances.to_balances())
+        } else {
+            // Fetch live balances from both exchanges
+            self.fetch_live_balances().await
         };
 
         EngineStatus {
@@ -434,11 +469,7 @@ impl ArbitrageEngine {
             prices: self.last_prices.clone(),
             current_cycle: self.current_cycle.clone(),
             history: self.history.clone(),
-            balances: if self.config.paper_trading {
-                Some(self.paper_balances.to_balances())
-            } else {
-                None
-            },
+            balances,
             fees: self.fee_tracker.as_ref().map(|ft| FeeBreakdown {
                 poloniex_trn_withdrawal: ft.poloniex_trn_withdrawal_fee,
                 mexc_usdt_withdrawal: ft.mexc_usdt_withdrawal_fee,
@@ -446,5 +477,27 @@ impl ArbitrageEngine {
                 estimated_net_profit: 0.0,
             }),
         }
+    }
+
+    async fn fetch_live_balances(&self) -> Option<Balances> {
+        let poloniex = self.poloniex_client.as_ref()?;
+        let mexc = self.mexc_client.as_ref()?;
+
+        let poloniex_balances = poloniex.get_balances().await.ok()?;
+        let mexc_balances = mexc.get_balances().await.ok()?;
+
+        let find_balance = |balances: &[super::super::exchanges::Balance], currency: &str| -> f64 {
+            balances.iter()
+                .find(|b| b.currency == currency)
+                .map(|b| b.available)
+                .unwrap_or(0.0)
+        };
+
+        Some(Balances {
+            poloniex_usdt: find_balance(&poloniex_balances, "USDT"),
+            poloniex_trn: find_balance(&poloniex_balances, "TRN"),
+            mexc_usdt: find_balance(&mexc_balances, "USDT"),
+            mexc_trn: find_balance(&mexc_balances, "TRN"),
+        })
     }
 }
