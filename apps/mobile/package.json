@@ -10,7 +10,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@arbitrades/shared": "workspace:*",
+    "@arbitrades/shared": "*",
     "@expo/vector-icons": "^14.0.0",
     "expo": "~52.0.0",
     "expo-linear-gradient": "~14.0.0",

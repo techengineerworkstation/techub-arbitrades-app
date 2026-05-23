@@ -105,11 +105,15 @@ impl ExchangeClient for MexcClient {
             .json()
             .await?;
 
+        let filled_qty: f64 = resp["executedQty"].as_str().unwrap_or("0").parse().unwrap_or(0.0);
+        let cummulative_quote: f64 = resp["cummulativeQuoteQty"].as_str().unwrap_or("0").parse().unwrap_or(0.0);
+        let filled_price = if filled_qty > 0.0 { cummulative_quote / filled_qty } else { 0.0 };
+
         Ok(OrderResult {
             order_id: resp["orderId"].as_str().unwrap_or("").to_string(),
             status: resp["status"].as_str().unwrap_or("NEW").to_string(),
-            filled_qty: resp["executedQty"].as_str().unwrap_or("0").parse().unwrap_or(0.0),
-            filled_price: resp["cummulativeQuoteQty"].as_str().unwrap_or("0").parse().unwrap_or(0.0),
+            filled_qty,
+            filled_price,
         })
     }
 
@@ -128,11 +132,15 @@ impl ExchangeClient for MexcClient {
             .json()
             .await?;
 
+        let filled_qty: f64 = resp["executedQty"].as_str().unwrap_or("0").parse().unwrap_or(0.0);
+        let cummulative_quote: f64 = resp["cummulativeQuoteQty"].as_str().unwrap_or("0").parse().unwrap_or(0.0);
+        let filled_price = if filled_qty > 0.0 { cummulative_quote / filled_qty } else { 0.0 };
+
         Ok(OrderResult {
             order_id: resp["orderId"].as_str().unwrap_or("").to_string(),
             status: resp["status"].as_str().unwrap_or("NEW").to_string(),
-            filled_qty: resp["executedQty"].as_str().unwrap_or("0").parse().unwrap_or(0.0),
-            filled_price: resp["cummulativeQuoteQty"].as_str().unwrap_or("0").parse().unwrap_or(0.0),
+            filled_qty,
+            filled_price,
         })
     }
 
